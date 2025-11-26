@@ -80,9 +80,9 @@ class RegisterScreen extends ConsumerWidget {
               SizedBox(height: size.height * 0.025),
 
               CustomTextField(
-                hint: "Full name",
+                hint: "Username",
                 icon: Icons.person_outline,
-                onChanged: controller.setName,
+                onChanged: controller.setUsername,
               ),
               SizedBox(height: size.height * 0.015),
 
@@ -93,10 +93,30 @@ class RegisterScreen extends ConsumerWidget {
               ),
               SizedBox(height: size.height * 0.015),
 
-              CustomTextField(
-                hint: "Phone number",
-                icon: Icons.phone_android_outlined,
-                onChanged: controller.setPhone,
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: size.width * 0.03),
+                    height: size.height * 0.065,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F8F8),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "+91",
+                      style: AppTextStyles.body(size.width * 0.045, color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(width: size.width * 0.02),
+                  Expanded(
+                    child: CustomTextField(
+                      hint: "Phone number (10 digits)",
+                      icon: Icons.phone_android_outlined,
+                      onChanged: controller.setPhone,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: size.height * 0.015),
 
@@ -106,8 +126,20 @@ class RegisterScreen extends ConsumerWidget {
                 obscureText: true,
                 onChanged: controller.setPassword,
               ),
-
               SizedBox(height: size.height * 0.015),
+
+              CustomTextField(
+                hint: "Invitation Code",
+                icon: Icons.card_membership_outlined,
+                onChanged: controller.setInvitation,
+              ),
+              SizedBox(height: size.height * 0.015),
+
+              CustomTextField(
+                hint: "Address",
+                icon: Icons.location_on_outlined,
+                onChanged: controller.setAddress,
+              ),
 
               Row(
                 children: [
