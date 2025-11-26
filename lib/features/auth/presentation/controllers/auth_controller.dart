@@ -213,7 +213,7 @@ class AuthController extends StateNotifier<AuthState> {
       return;
     }
 
-    Navigator.pushNamed(context, '/otp');
+    Navigator.pushNamed(context, '/home');
   }
 
   void goToRegister(BuildContext context) {

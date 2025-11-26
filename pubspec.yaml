@@ -30,5 +30,6 @@ flutter:
     - assets/images/slides/
     - assets/images/login/
     - assets/images/register/
+    - assets/images/home/
 
   uses-material-design: true
