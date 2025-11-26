@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/theme/text_styles.dart';
@@ -28,7 +29,6 @@ class RegisterScreen extends ConsumerWidget {
             children: [
               SizedBox(
                 height: isSmall ? size.height * 0.30 : size.height * 0.33,
-
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -46,7 +46,6 @@ class RegisterScreen extends ConsumerWidget {
                     ),
                     Positioned(
                       bottom: size.height * 0.053,
-
                       child: Column(
                         children: [
                           Text(
@@ -76,23 +75,22 @@ class RegisterScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-
               SizedBox(height: size.height * 0.025),
-
               CustomTextField(
                 hint: "Username",
                 icon: Icons.person_outline,
                 onChanged: controller.setUsername,
+                error: state.usernameError,
               ),
               SizedBox(height: size.height * 0.015),
-
               CustomTextField(
                 hint: "Valid email",
                 icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
                 onChanged: controller.setEmail,
+                error: state.emailError,
               ),
               SizedBox(height: size.height * 0.015),
-
               Row(
                 children: [
                   Container(
@@ -113,34 +111,48 @@ class RegisterScreen extends ConsumerWidget {
                     child: CustomTextField(
                       hint: "Phone number (10 digits)",
                       icon: Icons.phone_android_outlined,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
                       onChanged: controller.setPhone,
+                      error: state.phoneError,
                     ),
                   ),
                 ],
               ),
               SizedBox(height: size.height * 0.015),
-
               CustomTextField(
                 hint: "Strong Password",
                 icon: Icons.lock_outline,
                 obscureText: true,
                 onChanged: controller.setPassword,
+                error: state.passwordError,
               ),
               SizedBox(height: size.height * 0.015),
-
+              CustomTextField(
+                hint: "Confirm Password",
+                icon: Icons.lock_reset_outlined,
+                obscureText: true,
+                onChanged: controller.setConfirmPassword,
+                error: state.confirmPasswordError,
+              ),
+              SizedBox(height: size.height * 0.015),
               CustomTextField(
                 hint: "Invitation Code",
                 icon: Icons.card_membership_outlined,
                 onChanged: controller.setInvitation,
+                error: state.invitationError,
               ),
               SizedBox(height: size.height * 0.015),
-
               CustomTextField(
                 hint: "Address",
                 icon: Icons.location_on_outlined,
                 onChanged: controller.setAddress,
+                error: state.addressError,
               ),
-
+              SizedBox(height: size.height * 0.01),
               Row(
                 children: [
                   Checkbox(
@@ -169,17 +181,13 @@ class RegisterScreen extends ConsumerWidget {
                   )
                 ],
               ),
-
               SizedBox(height: size.height * 0.03),
-
               PrimaryButton(
                 label: "Next",
                 hasArrow: true,
                 onTap: () => controller.register(context),
               ),
-
               SizedBox(height: size.height * 0.028),
-
               GestureDetector(
                 onTap: () {
                   controller.reset();
@@ -189,14 +197,14 @@ class RegisterScreen extends ConsumerWidget {
                   text: TextSpan(
                     text: "Already a member? ",
                     style: AppTextStyles.body(
-                      size.width * 0.045,
+                      size.width * 0.038,
                       color: Colors.black,
                     ),
                     children: [
                       TextSpan(
                         text: "Log In",
                         style: AppTextStyles.body(
-                          size.width * 0.045,
+                          size.width * 0.038,
                           color: AppColors.primary,
                         ),
                       ),
@@ -204,7 +212,6 @@ class RegisterScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-
               SizedBox(height: size.height * 0.03),
             ],
           ),
