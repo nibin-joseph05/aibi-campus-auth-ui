@@ -146,7 +146,7 @@ class LoginScreen extends ConsumerWidget {
 
                   GestureDetector(
                     onTap: () {
-
+                      Navigator.pushNamed(context, '/forgot-password');
                     },
                     child: Text(
                       "Forget password ?",

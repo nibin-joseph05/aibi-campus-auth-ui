@@ -225,4 +225,8 @@ class AuthController extends StateNotifier<AuthState> {
     reset();
     Navigator.pushNamed(context, '/login');
   }
+
+  void updateEmailError(String msg) =>
+      state = state.copyWith(emailError: msg);
+
 }
