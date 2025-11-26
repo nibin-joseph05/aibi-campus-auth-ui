@@ -15,6 +15,7 @@ class RegisterScreen extends ConsumerWidget {
     final controller = ref.read(authControllerProvider.notifier);
     final state = ref.watch(authControllerProvider);
     final size = MediaQuery.of(context).size;
+    final isSmall = size.height < 700;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -22,13 +23,12 @@ class RegisterScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.07,
-            vertical: size.height * 0.03,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: size.height * 0.38,
+                height: isSmall ? size.height * 0.30 : size.height * 0.33,
+
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -40,14 +40,13 @@ class RegisterScreen extends ConsumerWidget {
                           child: SvgPicture.asset(
                             "assets/images/register/register_header.svg",
                             fit: BoxFit.contain,
-                            allowDrawingOutsideViewBox: true,
                           ),
                         ),
                       ),
                     ),
-
                     Positioned(
-                      bottom: size.height * 0.083,
+                      bottom: size.height * 0.053,
+
                       child: Column(
                         children: [
                           Text(
@@ -62,7 +61,7 @@ class RegisterScreen extends ConsumerWidget {
                             width: size.width * 0.02,
                             height: size.width * 0.02,
                           ),
-                          SizedBox(height: size.height * 0.01),
+                          SizedBox(height: size.height * 0.009),
                           Text(
                             "by creating a free account",
                             textAlign: TextAlign.center,
@@ -78,29 +77,28 @@ class RegisterScreen extends ConsumerWidget {
                 ),
               ),
 
-              SizedBox(height: size.height * 0.035),
-
+              SizedBox(height: size.height * 0.025),
 
               CustomTextField(
                 hint: "Full name",
                 icon: Icons.person_outline,
                 onChanged: controller.setName,
               ),
-              SizedBox(height: size.height * 0.018),
+              SizedBox(height: size.height * 0.015),
 
               CustomTextField(
                 hint: "Valid email",
                 icon: Icons.email_outlined,
                 onChanged: controller.setEmail,
               ),
-              SizedBox(height: size.height * 0.018),
+              SizedBox(height: size.height * 0.015),
 
               CustomTextField(
                 hint: "Phone number",
                 icon: Icons.phone_android_outlined,
                 onChanged: controller.setPhone,
               ),
-              SizedBox(height: size.height * 0.018),
+              SizedBox(height: size.height * 0.015),
 
               CustomTextField(
                 hint: "Strong Password",
@@ -109,7 +107,8 @@ class RegisterScreen extends ConsumerWidget {
                 onChanged: controller.setPassword,
               ),
 
-              SizedBox(height: size.height * 0.018),
+              SizedBox(height: size.height * 0.015),
+
               Row(
                 children: [
                   Checkbox(
@@ -120,13 +119,17 @@ class RegisterScreen extends ConsumerWidget {
                     child: RichText(
                       text: TextSpan(
                         text: "By checking the box you agree to our ",
-                        style: AppTextStyles.body(size.width * 0.035,
-                            color: Colors.black),
+                        style: AppTextStyles.body(
+                          size.width * 0.035,
+                          color: Colors.black,
+                        ),
                         children: [
                           TextSpan(
                             text: "Terms and Conditions.",
-                            style: AppTextStyles.body(size.width * 0.035,
-                                color: AppColors.primary),
+                            style: AppTextStyles.body(
+                              size.width * 0.035,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ],
                       ),
@@ -134,39 +137,43 @@ class RegisterScreen extends ConsumerWidget {
                   )
                 ],
               ),
-              SizedBox(height: size.height * 0.035),
 
+              SizedBox(height: size.height * 0.03),
 
               PrimaryButton(
                 label: "Next",
                 hasArrow: true,
                 onTap: () => controller.register(context),
               ),
-              SizedBox(height: size.height * 0.03),
 
+              SizedBox(height: size.height * 0.028),
 
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    controller.reset();
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  child: RichText(
-                    text: TextSpan(
-                      text: "Already a member? ",
-                      style: AppTextStyles.body(size.width * 0.045,
-                          color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: "Log In",
-                          style: AppTextStyles.body(size.width * 0.045,
-                              color: AppColors.primary),
-                        ),
-                      ],
+              GestureDetector(
+                onTap: () {
+                  controller.reset();
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: RichText(
+                  text: TextSpan(
+                    text: "Already a member? ",
+                    style: AppTextStyles.body(
+                      size.width * 0.045,
+                      color: Colors.black,
                     ),
+                    children: [
+                      TextSpan(
+                        text: "Log In",
+                        style: AppTextStyles.body(
+                          size.width * 0.045,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
+
+              SizedBox(height: size.height * 0.03),
             ],
           ),
         ),
