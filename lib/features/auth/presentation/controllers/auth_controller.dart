@@ -337,6 +337,76 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> sendOtp(BuildContext context) async {
+    final email = state.email.trim();
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+    if (email.isEmpty) {
+      state = state.copyWith(emailError: "Email cannot be empty");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter an email")),
+      );
+      return;
+    }
+
+    if (!emailRegex.hasMatch(email)) {
+      state = state.copyWith(emailError: "Invalid email format");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enter a valid email address")),
+      );
+      return;
+    }
+
+    state = state.copyWith(emailError: "");
+
+    try {
+      final repo = AuthRepository();
+      final res = await repo.sendOtp(email);
+
+      if (res.data['status'] == "success") {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("OTP sent to your email")));
+        Navigator.pushNamed(context, '/otp');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res.data['message'] ?? "Failed to send OTP")),
+        );
+      }
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Something went wrong")),
+      );
+    }
+  }
+
+  Future<void> verifyOtp(BuildContext context, String otp) async {
+    if (otp.length != 6 || int.tryParse(otp) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enter valid 6-digit OTP")),
+      );
+      return;
+    }
+
+    try {
+      final repo = AuthRepository();
+      final res = await repo.verifyOtp(state.email.trim(), otp);
+
+      if (res.data['status'] == "success") {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("OTP verified")));
+
+        Navigator.pushNamed(context, "/home");
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res.data['message'] ?? "OTP verification failed")),
+        );
+      }
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid OTP")),
+      );
+    }
+  }
 
   void goToRegister(BuildContext context) {
     reset();

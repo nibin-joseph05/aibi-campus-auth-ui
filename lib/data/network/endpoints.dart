@@ -3,5 +3,7 @@ class Endpoints {
 
   static const String signup = "/auth/signup";
   static const String login = "/auth/login";
-  static const String verifyOtp = "/auth/verify";
+  static const String sendOtp = "/auth/sendOtp";
+  static const String verifyOtp = "/auth/verifyOtp";
+
 }

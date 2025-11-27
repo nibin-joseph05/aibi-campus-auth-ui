@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import '../network/api_client.dart';
 import '../network/endpoints.dart';
@@ -57,6 +59,27 @@ class AuthRepository {
         "signinId": signinId,
       },
     );
+  }
+
+  Future<Response> sendOtp(String email) async {
+    return ApiClient.post(
+      Endpoints.sendOtp,
+      data: {"email": email},
+    );
+  }
+
+  Future<Response> verifyOtp(String email, String invitationCode) async {
+
+  var response=  ApiClient.post(
+      Endpoints.verifyOtp,
+      data: {
+        "email": email,
+        "invitationCode": invitationCode,
+      },
+    );
+  print("response---------$response");
+    return response;
+
   }
 
 }

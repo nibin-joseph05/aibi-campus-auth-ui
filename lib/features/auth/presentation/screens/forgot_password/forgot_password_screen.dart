@@ -18,6 +18,7 @@ class ForgotPasswordScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Stack(
           children: [
@@ -61,29 +62,7 @@ class ForgotPasswordScreen extends ConsumerWidget {
                   PrimaryButton(
                     label: "Send OTP",
                     hasArrow: true,
-                    onTap: () {
-                      final email = state.email.trim();
-
-                      if (email.isEmpty) {
-                        controller.updateEmailError("Email cannot be empty");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Please enter an email")),
-                        );
-                        return;
-                      }
-
-                      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                      if (!emailRegex.hasMatch(email)) {
-                        controller.updateEmailError("Invalid email format");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Enter a valid email address")),
-                        );
-                        return;
-                      }
-
-                      controller.updateEmailError("");
-                      Navigator.pushNamed(context, '/otp');
-                    },
+                    onTap: () => controller.sendOtp(context),
                   ),
                 ],
               ),

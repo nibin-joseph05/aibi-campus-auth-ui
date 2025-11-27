@@ -4,17 +4,28 @@ import '../../../../../core/theme/text_styles.dart';
 import '../../../../../core/widgets/arrow_icon.dart';
 import '../../widgets/primary_button.dart';
 import '../../controllers/auth_controller.dart';
-import '../../../../../core/theme/app_colors.dart';
 
-class OtpScreen extends ConsumerWidget {
+class OtpScreen extends ConsumerStatefulWidget {
   const OtpScreen({super.key});
+  @override
+  ConsumerState<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends ConsumerState<OtpScreen> {
+  final List<TextEditingController> boxes =
+  List.generate(6, (_) => TextEditingController());
+
+  String get otp => boxes.map((c) => c.text).join();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final controller = ref.read(authControllerProvider.notifier);
+    final state = ref.watch(authControllerProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Stack(
           children: [
@@ -45,13 +56,12 @@ class OtpScreen extends ConsumerWidget {
                       children: [
                         const TextSpan(text: "Please enter the 6-digit code sent to your email "),
                         TextSpan(
-                          text: "hemmyhtec@gmail.com",
+                          text: state.email,
                           style: AppTextStyles.body(
                             size.width * 0.04,
                             color: Colors.black,
                           ).copyWith(fontWeight: FontWeight.w700),
                         ),
-
                         const TextSpan(text: " for verification."),
                       ],
                     ),
@@ -61,7 +71,7 @@ class OtpScreen extends ConsumerWidget {
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(6, (index) {
+                    children: List.generate(6, (i) {
                       return Container(
                         width: size.width * 0.11,
                         height: size.width * 0.13,
@@ -70,12 +80,20 @@ class OtpScreen extends ConsumerWidget {
                           color: const Color(0xFFF4F4F4),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          "•",
-                          style: AppTextStyles.heading(
-                            size.width * 0.06,
-                            color: Colors.black,
+                        child: TextField(
+                          controller: boxes[i],
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          maxLength: 1,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            counterText: "",
                           ),
+                          onChanged: (v) {
+                            if (v.isNotEmpty && i < 5) {
+                              FocusScope.of(context).nextFocus();
+                            }
+                          },
                         ),
                       );
                     }),
@@ -86,10 +104,7 @@ class OtpScreen extends ConsumerWidget {
                   PrimaryButton(
                     label: "VERIFY",
                     hasArrow: false,
-                    onTap: () {
-                      /// TODO: ADD OTP VALIDATION
-                      Navigator.pushNamed(context, "/home");
-                    },
+                    onTap: () => controller.verifyOtp(context, otp),
                   ),
 
                   SizedBox(height: size.height * 0.06),
@@ -104,7 +119,6 @@ class OtpScreen extends ConsumerWidget {
                             color: Colors.black,
                           ).copyWith(fontWeight: FontWeight.w600),
                         ),
-
                         SizedBox(height: size.height * 0.004),
                         Text(
                           "Request new code in 00:30s",
