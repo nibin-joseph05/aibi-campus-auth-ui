@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../data/repositories/auth_repository.dart';
+
 final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
       (ref) => AuthController(),
 );
@@ -139,7 +141,8 @@ class AuthController extends StateNotifier<AuthState> {
     Navigator.pushNamed(context, '/otp');
   }
 
-  void register(BuildContext context) {
+  Future<void> register(BuildContext context) async
+  {
     String? usernameErr;
     String? emailErr;
     String? phoneErr;
@@ -211,6 +214,31 @@ class AuthController extends StateNotifier<AuthState> {
         const SnackBar(content: Text("Please accept Terms & Conditions")),
       );
       return;
+    }
+
+    final repo = AuthRepository();
+
+    try {
+      final response = await repo.signup(
+        username: state.username,
+        email: state.email,
+        phone: state.phone,
+        password: state.password,
+        invitationCode: state.invitationCode,
+        address: state.address,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Navigator.pushNamed(context, '/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data.toString())),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Something went wrong: $e")),
+      );
     }
 
     Navigator.pushNamed(context, '/home');
