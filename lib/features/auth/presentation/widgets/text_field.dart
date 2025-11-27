@@ -40,7 +40,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         TextField(
           obscureText: isPassword && !_isPasswordVisible,
-          onChanged: widget.onChanged,
+          onChanged: widget.onChanged ?? (_) {},
+          readOnly: widget.onChanged == null,
           keyboardType: widget.keyboardType,
           inputFormatters: widget.inputFormatters,
           style: AppTextStyles.body(size.width * 0.04, color: Colors.black),

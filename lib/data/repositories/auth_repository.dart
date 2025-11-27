@@ -4,22 +4,36 @@ import '../network/endpoints.dart';
 
 class AuthRepository {
   Future<Response> signup({
-    required String username,
+    required String userName,
     required String email,
-    required String phone,
     required String password,
-    required String invitationCode,
+    required String mobileNumber,
+    required String category,
     required String address,
+    required String orgName,
+    required String startTime,
+    required String endTime,
+    required String signinId,
+    required String deviceId,
+    required String platform,
+    required String token,
   }) async {
     return ApiClient.post(
       Endpoints.signup,
       data: {
-        "username": username,
+        "userName": userName,
         "email": email,
-        "phone": phone,
         "password": password,
-        "invitation": invitationCode,
+        "mobileNumber": mobileNumber,
+        "category": category,
         "address": address,
+        "orgName": orgName,
+        "startTime": startTime,
+        "endTime": endTime,
+        "signinId": signinId,
+        "deviceId": deviceId,
+        "platform": platform,
+        "token": token
       },
     );
   }
