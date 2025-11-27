@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/navigation/navigation_key.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
       (ref) => AuthController(),
@@ -119,6 +120,9 @@ class AuthController extends StateNotifier<AuthState> {
 
   AuthController() : super(const AuthState()) {
     _initAutoFields();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAutoLogin();
+    });
   }
 
   void setUsername(String v) => state = state.copyWith(username: v, usernameError: "");
@@ -142,13 +146,80 @@ class AuthController extends StateNotifier<AuthState> {
 
   void reset() => state = const AuthState();
 
-  void login(BuildContext context) {
-    if (state.email.isEmpty || state.password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter email and password")));
+  Future<void> login(BuildContext context) async {
+    String? emailErr;
+    String? passwordErr;
+
+    final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+
+    if (state.email.isEmpty) {
+      emailErr = "Email is required";
+    } else if (!emailRegex.hasMatch(state.email)) {
+      emailErr = "Invalid email format";
+    }
+
+    if (state.password.isEmpty) {
+      passwordErr = "Password is required";
+    } else if (state.password.length < 6) {
+      passwordErr = "Password must be at least 6 characters";
+    }
+
+    state = state.copyWith(
+      emailError: emailErr ?? "",
+      passwordError: passwordErr ?? "",
+    );
+
+    if (emailErr != null || passwordErr != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fix the highlighted fields")),
+      );
       return;
     }
-    Navigator.pushNamed(context, '/otp');
+
+    final repo = AuthRepository();
+
+    try {
+      final response = await repo.login(
+        email: state.email,
+        password: state.password,
+        platform: state.platform,
+        token: state.token,
+        deviceId: state.deviceId,
+        signinId: state.signinId,
+      );
+
+      final res = response.data;
+
+      if (res['status'] == "success") {
+        if (state.rememberMe) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("email", state.email);
+          await prefs.setString("token", res['data']['signinId']);
+        }
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Login successful")));
+
+        Navigator.pushNamed(context, '/home');
+        return;
+      }
+      else {
+        final msg = res['message'] ?? "Login failed";
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg)),
+        );
+      }
+
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final msg = data?['message'] ?? "Login failed";
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    }
   }
+
 
   Future<void> register(BuildContext context) async {
     String? usernameErr, emailErr, phoneErr, passwordErr, confirmPasswordErr, addressErr;
@@ -246,6 +317,24 @@ class AuthController extends StateNotifier<AuthState> {
       final fcm = await FirebaseMessaging.instance.getToken();
       if (fcm != null) state = state.copyWith(token: fcm);
     } catch (_) {}
+  }
+
+  Future<void> _checkAutoLogin() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString("email");
+      final savedToken = prefs.getString("token");
+
+      if (savedEmail != null && savedToken != null) {
+        Navigator.pushNamedAndRemoveUntil(
+          navigatorKey.currentContext!,
+          '/home',
+              (route) => false,
+        );
+      }
+    } catch (e) {
+      debugPrint("Auto login exception: $e");
+    }
   }
 
 

@@ -37,4 +37,28 @@ class AuthRepository {
       },
     );
   }
+
+  Future<Response> login({
+    required String email,
+    required String password,
+    required String platform,
+    required String token,
+    required String deviceId,
+    required String signinId,
+  }) async {
+    return ApiClient.post(
+      Endpoints.login,
+      data: {
+        "email": email,
+        "password": password,
+        "platform": platform,
+        "token": token,
+        "deviceId": deviceId,
+        "signinId": signinId,
+      },
+    );
+  }
+
 }
+
+

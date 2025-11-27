@@ -81,25 +81,48 @@ class LoginScreen extends ConsumerWidget {
 
               SizedBox(height: size.height * 0.05),
 
-
-              CustomTextField(
-                hint: "Enter your email",
-                icon: Icons.email_outlined,
-                onChanged: controller.setEmail,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
+                    hint: "Enter your email",
+                    icon: Icons.email_outlined,
+                    onChanged: controller.setEmail,
+                  ),
+                  if (state.emailError.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 4),
+                      child: Text(
+                        state.emailError,
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
+                ],
               ),
 
               SizedBox(height: size.height * 0.025),
 
-
-              CustomTextField(
-                hint: "Password",
-                icon: Icons.lock_outline,
-                obscureText: true,
-                onChanged: controller.setPassword,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
+                    hint: "Password",
+                    icon: Icons.lock_outline,
+                    obscureText: true,
+                    onChanged: controller.setPassword,
+                  ),
+                  if (state.passwordError.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 4),
+                      child: Text(
+                        state.passwordError,
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
+                ],
               ),
 
               SizedBox(height: size.height * 0.03),
-
 
               Row(
                 children: [

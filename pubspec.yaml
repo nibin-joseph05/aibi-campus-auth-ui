@@ -19,6 +19,8 @@ dependencies:
   google_fonts: ^6.2.1
   device_info_plus: ^10.1.0
   firebase_messaging: ^15.0.0
+  shared_preferences: ^2.2.2
+
 
 dev_dependencies:
   flutter_test:
