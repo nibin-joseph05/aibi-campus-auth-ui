@@ -13,8 +13,10 @@ class SlideScreens extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(slideControllerProvider);
     final controller = ref.read(slideControllerProvider.notifier);
+
     final size = MediaQuery.of(context).size;
-    final isSmall = size.height < 700;
+    final height = size.height;
+    final width = size.width;
 
     final slides = [
       {
@@ -37,65 +39,92 @@ class SlideScreens extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            PageView.builder(
-              controller: controller.pageController,
-              itemCount: slides.length,
-              onPageChanged: controller.onPageChanged,
-              itemBuilder: (_, index) {
-                final s = slides[index];
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.07,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: isSmall ? size.height * 0.05 : size.height * 0.09),
-                      Center(
-                        child: SvgPicture.asset(
-                          s["image"]!,
-                          height: isSmall ? size.height * 0.34 : size.height * 0.42,
-                        ),
+
+            Expanded(
+              flex: 8,
+              child: Expanded(
+                flex: 8,
+                child: PageView.builder(
+                  controller: controller.pageController,
+                  itemCount: slides.length,
+                  onPageChanged: controller.onPageChanged,
+                  itemBuilder: (_, index) {
+                    final s = slides[index];
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width * 0.07),
+                      child: LayoutBuilder(
+                        builder: (_, c) {
+                          return SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minHeight: c.maxHeight),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: SvgPicture.asset(
+                                      s["image"]!,
+                                      height: height * 0.33,
+                                    ),
+                                  ),
+                                  SizedBox(height: height * 0.04),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      s["title"]!,
+                                      style: AppTextStyles.heading(width * 0.085, color: Colors.black),
+                                    ),
+                                  ),
+                                  SizedBox(height: height * 0.015),
+                                  Text(
+                                    s["subtitle"]!,
+                                    style: AppTextStyles.body(width * 0.045, color: Colors.black54),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      SizedBox(height: isSmall ? size.height * 0.06 : size.height * 0.10),
-                      Text(
-                        s["title"]!,
-                        style: AppTextStyles.heading(size.width * 0.085, color: Colors.black),
-                      ),
-                      SizedBox(height: size.height * 0.01),
-                      Text(
-                        s["subtitle"]!,
-                        style: AppTextStyles.body(size.width * 0.045, color: Colors.black54),
-                      ),
-                      SizedBox(height: size.height * 0.045),
-                      _buildIndicators(currentIndex),
-                    ],
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
+
             ),
 
 
-            Positioned(
-              bottom: size.height * 0.06,
-              right: size.width * 0.07,
-              child: GestureDetector(
-                onTap: () => controller.next(context),
-                child: Container(
-                  width: size.width * 0.15,
-                  height: size.width * 0.15,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF252525),
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: ArrowIcon(size: size.width * 0.06),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.07),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    _buildIndicators(currentIndex),
+
+
+                    GestureDetector(
+                      onTap: () => controller.next(context),
+                      child: Container(
+                        width: width * 0.16,
+                        height: width * 0.16,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF252525),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: ArrowIcon(size: width * 0.055),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-
           ],
         ),
       ),
@@ -112,7 +141,7 @@ class SlideScreens extends ConsumerWidget {
           width: index == i ? 26 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: index == i ? AppColors.primary : Colors.black54,
+            color: index == i ? AppColors.primary : Colors.black26,
             borderRadius: BorderRadius.circular(12),
           ),
         ),
