@@ -40,6 +40,9 @@ class AuthState {
   final bool rememberMe;
   final bool agreeTerms;
 
+  final bool isLoadingSendOtp;
+
+
   const AuthState({
     this.username = "",
     this.email = "",
@@ -63,6 +66,8 @@ class AuthState {
     this.addressError = "",
     this.rememberMe = false,
     this.agreeTerms = false,
+    this.isLoadingSendOtp = false,
+
   });
 
   AuthState copyWith({
@@ -88,6 +93,8 @@ class AuthState {
     String? addressError,
     bool? rememberMe,
     bool? agreeTerms,
+    bool? isLoadingSendOtp,
+
   }) {
     return AuthState(
       username: username ?? this.username,
@@ -112,6 +119,8 @@ class AuthState {
       addressError: addressError ?? this.addressError,
       rememberMe: rememberMe ?? this.rememberMe,
       agreeTerms: agreeTerms ?? this.agreeTerms,
+      isLoadingSendOtp: isLoadingSendOtp ?? this.isLoadingSendOtp,
+
     );
   }
 }
@@ -359,6 +368,8 @@ class AuthController extends StateNotifier<AuthState> {
 
     state = state.copyWith(emailError: "");
 
+    state = state.copyWith(isLoadingSendOtp: true);
+
     try {
       final repo = AuthRepository();
       final res = await repo.sendOtp(email);
@@ -377,6 +388,8 @@ class AuthController extends StateNotifier<AuthState> {
         const SnackBar(content: Text("Something went wrong")),
       );
     }
+
+    state = state.copyWith(isLoadingSendOtp: false);
   }
 
   Future<void> verifyOtp(BuildContext context, String otp) async {

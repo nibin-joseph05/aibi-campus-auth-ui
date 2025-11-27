@@ -62,6 +62,7 @@ class ForgotPasswordScreen extends ConsumerWidget {
                   PrimaryButton(
                     label: "Send OTP",
                     hasArrow: true,
+                    isLoading: state.isLoadingSendOtp,
                     onTap: () => controller.sendOtp(context),
                   ),
                 ],
