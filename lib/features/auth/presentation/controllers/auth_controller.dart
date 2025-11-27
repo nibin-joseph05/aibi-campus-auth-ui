@@ -1,13 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../data/repositories/auth_repository.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import '../../../../core/navigation/navigation_key.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+
+void showTopSnackBar(BuildContext context, String message, {bool isError = false}) {
+  final overlay = Overlay.of(context);
+  final overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: MediaQuery.of(context).padding.top + 16,
+      left: 16,
+      right: 16,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: isError ? Colors.red.shade600 : Colors.green.shade600,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isError ? Icons.error_outline : Icons.check_circle_outline,
+                color: Colors.white,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  overlay.insert(overlayEntry);
+  Future.delayed(const Duration(seconds: 3), () {
+    overlayEntry.remove();
+  });
+}
 
 final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
       (ref) => AuthController(),
@@ -20,7 +72,6 @@ class AuthState {
   final String password;
   final String confirmPassword;
   final String address;
-
   final String category;
   final String orgName;
   final String startTime;
@@ -29,19 +80,15 @@ class AuthState {
   final String deviceId;
   final String platform;
   final String token;
-
   final String usernameError;
   final String emailError;
   final String phoneError;
   final String passwordError;
   final String confirmPasswordError;
   final String addressError;
-
   final bool rememberMe;
   final bool agreeTerms;
-
   final bool isLoadingSendOtp;
-
 
   const AuthState({
     this.username = "",
@@ -67,7 +114,6 @@ class AuthState {
     this.rememberMe = false,
     this.agreeTerms = false,
     this.isLoadingSendOtp = false,
-
   });
 
   AuthState copyWith({
@@ -94,7 +140,6 @@ class AuthState {
     bool? rememberMe,
     bool? agreeTerms,
     bool? isLoadingSendOtp,
-
   }) {
     return AuthState(
       username: username ?? this.username,
@@ -120,13 +165,11 @@ class AuthState {
       rememberMe: rememberMe ?? this.rememberMe,
       agreeTerms: agreeTerms ?? this.agreeTerms,
       isLoadingSendOtp: isLoadingSendOtp ?? this.isLoadingSendOtp,
-
     );
   }
 }
 
 class AuthController extends StateNotifier<AuthState> {
-
   AuthController() : super(const AuthState()) {
     _initAutoFields();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -140,7 +183,6 @@ class AuthController extends StateNotifier<AuthState> {
   void setConfirmPassword(String v) => state = state.copyWith(confirmPassword: v, confirmPasswordError: "");
   void setPhone(String v) => state = state.copyWith(phone: v, phoneError: "");
   void setAddress(String v) => state = state.copyWith(address: v, addressError: "");
-
   void setCategory(String v) => state = state.copyWith(category: v);
   void setOrgName(String v) => state = state.copyWith(orgName: v);
   void setStartTime(String v) => state = state.copyWith(startTime: v);
@@ -179,9 +221,7 @@ class AuthController extends StateNotifier<AuthState> {
     );
 
     if (emailErr != null || passwordErr != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fix the highlighted fields")),
-      );
+      showTopSnackBar(context, "Please fix the highlighted fields", isError: true);
       return;
     }
 
@@ -206,29 +246,19 @@ class AuthController extends StateNotifier<AuthState> {
           await prefs.setString("token", res['data']['signinId']);
         }
 
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Login successful")));
-
+        showTopSnackBar(context, "Login successful", isError: false);
         Navigator.pushNamed(context, '/home');
         return;
-      }
-      else {
+      } else {
         final msg = res['message'] ?? "Login failed";
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        showTopSnackBar(context, msg, isError: true);
       }
-
     } on DioException catch (e) {
       final data = e.response?.data;
       final msg = data?['message'] ?? "Login failed";
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      showTopSnackBar(context, msg, isError: true);
     }
   }
-
 
   Future<void> register(BuildContext context) async {
     String? usernameErr, emailErr, phoneErr, passwordErr, confirmPasswordErr, addressErr;
@@ -257,9 +287,7 @@ class AuthController extends StateNotifier<AuthState> {
         addressErr != null) return;
 
     if (!state.agreeTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please accept Terms & Conditions")),
-      );
+      showTopSnackBar(context, "Please accept Terms & Conditions", isError: true);
       return;
     }
 
@@ -286,13 +314,11 @@ class AuthController extends StateNotifier<AuthState> {
         Navigator.pushNamed(context, '/home');
         return;
       }
-
     } on DioException catch (e) {
       final data = e.response?.data;
-
       final msg = data?['message'] ?? "Registration failed";
-
       final errors = data?['errors'];
+
       if (errors != null) {
         state = state.copyWith(
           usernameError: errors['userName'] ?? "",
@@ -302,25 +328,19 @@ class AuthController extends StateNotifier<AuthState> {
         );
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      showTopSnackBar(context, msg, isError: true);
     }
   }
 
   Future<void> _initAutoFields() async {
-
     state = state.copyWith(platform: Theme.of(navigatorKey.currentContext!).platform.name.toLowerCase());
-
     state = state.copyWith(signinId: DateTime.now().millisecondsSinceEpoch.toString());
-
 
     try {
       final info = DeviceInfoPlugin();
       final android = await info.androidInfo;
       state = state.copyWith(deviceId: android.model ?? "");
     } catch (_) {}
-
 
     try {
       final fcm = await FirebaseMessaging.instance.getToken();
@@ -352,22 +372,17 @@ class AuthController extends StateNotifier<AuthState> {
 
     if (email.isEmpty) {
       state = state.copyWith(emailError: "Email cannot be empty");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter an email")),
-      );
+      showTopSnackBar(context, "Please enter an email", isError: true);
       return;
     }
 
     if (!emailRegex.hasMatch(email)) {
       state = state.copyWith(emailError: "Invalid email format");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Enter a valid email address")),
-      );
+      showTopSnackBar(context, "Enter a valid email address", isError: true);
       return;
     }
 
     state = state.copyWith(emailError: "");
-
     state = state.copyWith(isLoadingSendOtp: true);
 
     try {
@@ -375,18 +390,13 @@ class AuthController extends StateNotifier<AuthState> {
       final res = await repo.sendOtp(email);
 
       if (res.data['status'] == "success") {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("OTP sent to your email")));
+        showTopSnackBar(context, "OTP sent to your email", isError: false);
         Navigator.pushNamed(context, '/otp');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res.data['message'] ?? "Failed to send OTP")),
-        );
+        showTopSnackBar(context, res.data['message'] ?? "Failed to send OTP", isError: true);
       }
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Something went wrong")),
-      );
+      showTopSnackBar(context, "Something went wrong", isError: true);
     }
 
     state = state.copyWith(isLoadingSendOtp: false);
@@ -394,9 +404,7 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> verifyOtp(BuildContext context, String otp) async {
     if (otp.length != 6 || int.tryParse(otp) == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Enter valid 6-digit OTP")),
-      );
+      showTopSnackBar(context, "Enter valid 6-digit OTP", isError: true);
       return;
     }
 
@@ -405,19 +413,13 @@ class AuthController extends StateNotifier<AuthState> {
       final res = await repo.verifyOtp(state.email.trim(), otp);
 
       if (res.data['status'] == "success") {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("OTP verified")));
-
+        showTopSnackBar(context, "OTP verified", isError: false);
         Navigator.pushNamed(context, "/home");
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res.data['message'] ?? "OTP verification failed")),
-        );
+        showTopSnackBar(context, res.data['message'] ?? "OTP verification failed", isError: true);
       }
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid OTP")),
-      );
+      showTopSnackBar(context, "Invalid OTP", isError: true);
     }
   }
 
@@ -431,6 +433,5 @@ class AuthController extends StateNotifier<AuthState> {
     Navigator.pushNamed(context, '/login');
   }
 
-  void updateEmailError(String msg) =>
-      state = state.copyWith(emailError: msg);
+  void updateEmailError(String msg) => state = state.copyWith(emailError: msg);
 }

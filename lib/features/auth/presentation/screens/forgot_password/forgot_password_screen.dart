@@ -15,40 +15,41 @@ class ForgotPasswordScreen extends ConsumerWidget {
     final controller = ref.read(authControllerProvider.notifier);
     final state = ref.watch(authControllerProvider);
     final size = MediaQuery.of(context).size;
+    final height = size.height;
+    final width = size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: Stack(
-          children: [
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.075),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: width * 0.075),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: height * 0.95),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: size.height * 0.07),
 
+
+                  SizedBox(height: height * 0.06),
                   Text(
                     "Forgot Password",
-                    style: AppTextStyles.heading(
-                      size.width * 0.07,
-                      color: Colors.black,
-                    ),
+                    style: AppTextStyles.heading(width * 0.07, color: Colors.black),
                   ),
 
-                  SizedBox(height: size.height * 0.012),
+                  SizedBox(height: height * 0.015),
+
 
                   Text(
-                    "Enter the email linked with your account and\nwe’ll send you a verification code.",
-                    style: AppTextStyles.body(
-                      size.width * 0.04,
-                      color: Colors.black.withOpacity(0.7),
-                    ),
+                    "Enter the email linked with your account and we’ll send you a verification code.",
+                    style: AppTextStyles.body(width * 0.04, color: Colors.black.withOpacity(0.7)),
                   ),
 
-                  SizedBox(height: size.height * 0.10),
+                  SizedBox(height: height * 0.10),
+
 
                   CustomTextField(
                     hint: "Email address",
@@ -57,41 +58,54 @@ class ForgotPasswordScreen extends ConsumerWidget {
                     error: state.emailError.isNotEmpty ? state.emailError : null,
                   ),
 
-                  SizedBox(height: size.height * 0.06),
+                  SizedBox(height: height * 0.07),
+
 
                   PrimaryButton(
                     label: "Send OTP",
                     hasArrow: true,
                     isLoading: state.isLoadingSendOtp,
-                    onTap: () => controller.sendOtp(context),
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      controller.sendOtp(context);
+                    },
                   ),
+
+                  SizedBox(height: height * 0.10),
                 ],
               ),
             ),
+          ),
+        ),
 
-            Positioned(
-              bottom: size.height * 0.045,
-              left: size.width * 0.06,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: size.width * 0.16,
-                  height: size.width * 0.16,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black,
+
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(left: width * 0.04, bottom: height * 0.025),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: (width * 0.13).clamp(45, 60),
+              height: (width * 0.13).clamp(45, 60),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                  child: Center(
-                    child: Transform.flip(
-                      flipX: true,
-                      child: ArrowIcon(size: size.width * 0.055),
-                    ),
-                  ),
-                ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: ArrowIcon(
+                size: (width * 0.048).clamp(16, 26),
               ),
             ),
-          ],
+          ),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+
       ),
     );
   }
